@@ -4,6 +4,10 @@ from Transaction import Transaction, RolledbackException
 
 
 class TransactionManager:
+    '''
+        Manage the transactions and the operations
+    '''
+
     def __init__(self, transactions, operations):
         self.items = {}
         self.current_index = 0
@@ -19,11 +23,10 @@ class TransactionManager:
             if timestamp > self.largest_timestamp:
                 self.largest_timestamp = timestamp
 
-    def add_operation(self, operation):
-        self.operations.append(operation)
-
     def handle_rollback(self, transaction: Transaction):
         '''
+            Handle the rollback of a transaction
+
             Assumption:
             The transaction that is rolled back is will
             be executed first before the other transactions
@@ -51,16 +54,22 @@ class TransactionManager:
                     except RolledbackException:
                         self.handle_rollback(t)
 
-            print(f"[Transaction Manager] Removing {version.name}")
+            print(f"[Transaction Manager] Remove {version.name}")
             self.items.get(
                 version.name[:-1]).versions[version.number].is_active = False
 
         self.operations = transaction.operations + self.operations
 
     def execute(self):
+        '''
+            Execute the transactions with
+            Multiversion Timestamp Ordering Concurency Control
+        '''
         print()
         while True:
             try:
+                print("[Transaction Manager] Queue:", self.operations)
+                print()
                 op = self.operations.pop(0)
                 print(">>> Operations:", op)
                 operation, transaction, item = self.parse_transaction(op)
@@ -92,6 +101,12 @@ class TransactionManager:
         print()
 
     def parse_transaction(self, transaction: str):
+        '''
+            Parse the transaction string into
+            operation, transaction number, and item
+
+            Return: tuple (operation, transaction number, item) or None
+        '''
         commit_pattern = r'C(\d+)'
         match = re.match(commit_pattern, transaction)
         if match:
@@ -109,6 +124,12 @@ class TransactionManager:
             return None
 
     def parse_timestamp(self, timestamp: str):
+        '''
+            Parse the timestamp string into
+            transaction number and timestamp
+
+            Return: tuple (transaction number, timestamp) or None
+        '''
         pattern = r'TS\(T(\w+)\) = (\d+)'
         match = re.match(pattern, timestamp)
 

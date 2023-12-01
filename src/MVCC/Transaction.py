@@ -2,6 +2,10 @@ from Item import Item, Version
 
 
 class RolledbackException(Exception):
+    '''
+        Exception to be raised when a transaction is rolled back
+    '''
+
     def __init__(self, transaction):
         super().__init__(f"T{transaction.name} ROLLBACK")
 
@@ -9,6 +13,10 @@ class RolledbackException(Exception):
 
 
 class Transaction:
+    '''
+        Transaction class. Representation of a transaction
+    '''
+
     def __init__(self, name, timestamp):
         self.name = name
         self.timestamp = timestamp
@@ -32,6 +40,10 @@ class Transaction:
         print(f"[Transaction] T{self.name} committed")
 
     def execute(self, operation: str, item: Item):
+        '''
+            Execute the operation on the item.
+            Allowed operations are R, W, and C
+        '''
         if operation == "C":
             self.commit()
             return
@@ -50,7 +62,11 @@ class Transaction:
             self.write(item)
 
     def read(self, item: Item):
+        '''
+            Read the item based on MVCC rules
+        '''
         version: Version = self.items[item.name]
+        # add transaction to the version's transactions
         version.add_transaction(self)
         print(f"[Transaction] Execute R{self.name}({version.name})")
         if version.rts < self.timestamp:
@@ -59,6 +75,9 @@ class Transaction:
             version.set_rts(self.timestamp)
 
     def write(self, item: Item):
+        '''
+            Write the item based on MVCC rules
+        '''
         version: Version = self.items[item.name]
         if (self.timestamp < version.rts):
             print(
