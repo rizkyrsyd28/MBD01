@@ -1,0 +1,10 @@
+TS(T1) = 5
+TS(T2) = 10
+---- BEGIN EXECUTION ----
+R1(X)
+W1(X)
+R2(X)
+W2(X)
+R1(X)
+W1(X)
+W2(X)
