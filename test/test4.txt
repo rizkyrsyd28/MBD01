@@ -1,16 +1,26 @@
 TS(T1) = 1
 TS(T2) = 2
 TS(T3) = 3
+TS(T4) = 4
+TS(T5) = 5
 ---- BEGIN EXECUTION ----
-R1(A)
-R2(A)
-R3(B)
-R1(B)
-W3(C)
-W2(C)
-R1(C)
-C1
-R2(D)
-W3(B)
-C2
-C3
+R1(X)
+W2(Y)
+R3(Z)
+W4(X)
+R5(Y)
+W1(Z)
+R2(X)
+W3(Y)
+R4(Z)
+W5(X)
+R1(Y)
+W2(Z)
+R3(X)
+W4(Y)
+R5(Z)
+W1(X)
+R2(Y)
+W3(Z)
+R4(X)
+W5(Y)
