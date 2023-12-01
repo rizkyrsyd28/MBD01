@@ -177,10 +177,16 @@ func (c *TwoPhaseLock) Write(operation types.Operation) {
 func (c *TwoPhaseLock) deadlockPrevention(operation types.Operation, lock types.Lock) {
 	if operation.Transaction < lock.Transaction {
 		// wait
+		if c.Verbose {
+			fmt.Println("Wait")
+		}
 		(*c).WaitQueue = append((*c).WaitQueue, operation)
 		(*c).addWaitSchedule(operation)
 	} else {
 		// rollback
+		if c.Verbose {
+			fmt.Println("Rollback")
+		}
 		(*c).rollback(operation)
 		(*c).WaitQueue = append((*c).WaitQueue, operation)
 		(*c).addWaitSchedule(operation)
@@ -202,7 +208,9 @@ func (c *TwoPhaseLock) upgrade(operation types.Operation) error {
 			}
 		}
 	}
-
+	if c.Verbose {
+		fmt.Println("Upgrade")
+	}
 	return (*c).LockTable.UpgradeLock(operation.Resource)
 }
 
