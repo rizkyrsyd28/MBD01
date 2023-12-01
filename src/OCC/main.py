@@ -1,6 +1,19 @@
 from TransactionManager import TransactionManager
+import utils.FileReader as FileReader
 
-operations = ["R1(X)", "W1(X)",  "R2(X)", "W2(X)", "R1(X)", "W1(X)", "W2(X)", "W1(X)", "R3(X)"]
+import sys
 
-tm = TransactionManager(operations)
-tm.start()
+
+def start(filepath: str):
+    operations = FileReader.read(filepath)
+
+    tm = TransactionManager(operations)
+    tm.start()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py [filepath]")
+        sys.exit(1)
+
+    start(sys.argv[1])

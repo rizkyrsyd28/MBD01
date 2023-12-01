@@ -45,14 +45,14 @@ class TransactionManager:
         #             self.transactions[j] = tmp
 
         while self.currentIndex < length:
-            print(f"---- Transactions: {self.transactions[self.currentIndex].name} ----")
+            print(f">>> Transactions: {self.transactions[self.currentIndex].name}")
             if not self.isValid():
                 print(f"T{self.transactions[self.currentIndex].name} Roll Back")
                 self.rollBack()
             print(f"T{self.transactions[self.currentIndex].name} commited\n")
             self.currentIndex += 1
         
-        print("----- Final Result -----")
+        print(">>> Final Result")
         for op in self.result:
             print(f"{op[1]}{op[0]}({op[2]})")
 
