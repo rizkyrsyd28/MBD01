@@ -15,7 +15,8 @@ class Transaction:
         self.operations = []
         self.items = {}
         self.created_versions = []
-        print(f"T{name} created with timestamp {timestamp}")
+        self.is_committed = False
+        print(f"[Transaction] T{name} created with timestamp {timestamp}")
 
     def __str__(self):
         return f"Transaction: {self.name}, Timestamp: {self.timestamp}"
@@ -27,10 +28,8 @@ class Transaction:
         self.operations.append(operation)
 
     def commit(self):
-        for version in self.created_versions:
-            version.remove_transaction(self)
-        self.created_versions = []
-        print(f"T{self.name} committed")
+        self.is_committed = True
+        print(f"[Transaction] T{self.name} committed")
 
     def execute(self, operation: str, item: Item):
         if operation == "C":
@@ -41,8 +40,6 @@ class Transaction:
             if latest_version is None:
                 item.add_version(self.timestamp, self.timestamp, self)
                 latest_version = item.get_highest_write(self.timestamp)
-            else:
-                latest_version.add_transaction(self)
 
             self.items[item.name] = latest_version
 
@@ -54,24 +51,27 @@ class Transaction:
 
     def read(self, item: Item):
         version: Version = self.items[item.name]
-        print(f"Execute R{self.name}({version.name})")
+        version.add_transaction(self)
+        print(f"[Transaction] Execute R{self.name}({version.name})")
         if version.rts < self.timestamp:
             print(
-                f"RTS({version.name}) = {version.rts} < TS(T{self.name}) = {self.timestamp}")
+                f"[Transaction] RTS({version.name}) = {version.rts} < TS(T{self.name}) = {self.timestamp}")
             version.set_rts(self.timestamp)
 
     def write(self, item: Item):
         version: Version = self.items[item.name]
         if (self.timestamp < version.rts):
             print(
-                f"T{self.name} is not allowed to write {version.name} because TS(T{self.name}) = {self.timestamp} < RTS({version.name}) = {version.rts}")
+                f"[Transaction] T{self.name} is not allowed to write {version.name} because TS(T{self.name}) = {self.timestamp} < RTS({version.name}) = {version.rts}")
             self.rollback()
             return
         if (self.timestamp == version.wts):
-            print(f"T{self.name} overwrite {version.name}")
+            print(f"[Transaction] T{self.name} overwrites {version.name}")
             version.set_wts(max(self.timestamp, version.wts))
             return
 
+        print(
+            f"[Transaction] TS(T{self.name}) = {self.timestamp} > RTS({version.name}) = {version.rts}. Create new version")
         new_version = item.add_version(self.timestamp, self.timestamp, self)
         self.created_versions.append(new_version)
         self.items[item.name] = new_version
