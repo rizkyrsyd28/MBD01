@@ -1,3 +1,7 @@
+TS(T1) = 1
+TS(T2) = 2
+TS(T3) = 3
+---- BEGIN EXECUTION ----
 R1(A)
 R2(A)
 R3(B)
